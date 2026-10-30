@@ -40,6 +40,23 @@ function applySecurityHeaders(headers: Headers) {
   }
 }
 
+/**
+ * Final safety net: every response leaving the server carries the privacy headers,
+ * including the SPA fallback (shared links like /13/28), /privacy and 404s, which
+ * Hono's notFound path does not run through middleware.
+ */
+export function withSecurityHeaders(response: Response): Response {
+  try {
+    applySecurityHeaders(response.headers);
+    return response;
+  } catch {
+    // Immutable headers (e.g. a proxied upstream response): copy into a new Response.
+    const headers = new Headers(response.headers);
+    applySecurityHeaders(headers);
+    return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+  }
+}
+
 app.use("*", compress());
 
 // Apply privacy headers after routing so they also cover raw tRPC responses.
@@ -115,7 +132,7 @@ if (env.isProduction) {
   serveStaticFiles(app);
 
   const port = parseInt(process.env.PORT || "3000");
-  serve({ fetch: app.fetch, port }, () => {
+  serve({ fetch: async (request, bindings) => withSecurityHeaders(await app.fetch(request, bindings)), port }, () => {
     log.info(`Server running on http://localhost:${port}/`);
   });
 }

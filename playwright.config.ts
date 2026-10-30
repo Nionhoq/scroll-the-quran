@@ -1,5 +1,8 @@
 import { defineConfig } from "@playwright/test";
 
+// PW_CHROMIUM_PATH lets CI or a dev machine reuse an installed Chromium.
+const executablePath = process.env.PW_CHROMIUM_PATH || undefined;
+
 export default defineConfig({
   testDir: "./tests",
   fullyParallel: false,
@@ -18,11 +21,17 @@ export default defineConfig({
     navigationTimeout: 45_000,
     screenshot: "only-on-failure",
     trace: "retain-on-failure",
+    launchOptions: executablePath ? { executablePath } : {},
   },
   webServer: {
     command: "npm start",
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 30_000,
+    env: {
+      COUNTS_FILE: "test-results/daily-counts.json",
+      SUPPORT_URL: "https://example.org/support",
+      PUBLIC_ORIGIN: "http://127.0.0.1:3000",
+    },
   },
 });

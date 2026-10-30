@@ -1,10 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
+  // Explicit globs only. Tailwind ignores later re-includes after a "!" negation,
+  // which previously stripped dialog/drawer styles and pushed every popup off-screen.
   content: [
     './index.html',
-    './src/**/*.{js,ts,jsx,tsx}',
-    '!./src/components/ui/**/*.tsx',
+    './src/*.{ts,tsx}',
+    './src/{pages,hooks,lib,providers}/**/*.{ts,tsx}',
+    './src/components/*.tsx',
     './src/components/ui/dialog.tsx',
     './src/components/ui/drawer.tsx',
   ],

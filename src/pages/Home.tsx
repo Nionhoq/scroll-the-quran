@@ -64,6 +64,10 @@ export default function Home() {
   const advancing = useRef(false);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentIndexRef = useRef(currentIndex);
+  // While a button/key-driven scroll is animating, intermediate scroll positions must not
+  // overwrite the target index (rapid taps used to land on the wrong ayah).
+  const scrollTarget = useRef<number | null>(null);
+  const scrollTargetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const isPlayingRef = useRef(false);
@@ -179,6 +183,14 @@ export default function Home() {
         currentIndexRef.current = bounded;
         setCurrentIndex(bounded);
       }
+      scrollTarget.current = bounded;
+      if (scrollTargetTimer.current) clearTimeout(scrollTargetTimer.current);
+      // Release the lock even if the user interrupts the animation.
+      scrollTargetTimer.current = setTimeout(() => {
+        scrollTarget.current = null;
+        // Re-sync in case the user swiped elsewhere while the lock was held.
+        scrollRef.current?.dispatchEvent(new Event("scroll"));
+      }, 1200);
       scrollRef.current?.scrollTo({
         top: bounded * scrollRef.current.clientHeight,
         behavior,
@@ -203,6 +215,11 @@ export default function Home() {
   const handleScroll = useCallback(() => {
     const container = scrollRef.current;
     if (!container || !feed) return;
+    if (scrollTarget.current !== null) {
+      const arrived = Math.abs(container.scrollTop - scrollTarget.current * container.clientHeight) < 2;
+      if (!arrived) return;
+      scrollTarget.current = null;
+    }
     const index = Math.round(container.scrollTop / container.clientHeight);
     if (index >= 0 && index < feed.verses.length && index !== currentIndexRef.current) {
       setCurrentIndex(index);
