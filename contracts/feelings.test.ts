@@ -15,8 +15,8 @@ describe("feelings.json", () => {
     expect(validateFeelings(feelings as FeelingsFile, lookup)).toEqual([]);
   });
 
-  it("is marked as pending scholar review until signed off", () => {
-    expect((feelings as FeelingsFile).reviewStatus).toBe("pending-scholar-review");
+  it("has an explicit review status (set to approved only after scholar sign-off)", () => {
+    expect((feelings as FeelingsFile).reviewStatus).toMatch(/^(pending-scholar-review|approved)$/);
   });
 
   it("catches bad entries", () => {

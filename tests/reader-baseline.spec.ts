@@ -32,7 +32,8 @@ test("loads Al-Fatihah 1:1 with sourced Arabic, translation, and understanding e
 
   const arabic = page.locator('[data-verse-key="1:1"] .quran-arabic');
   await expect(arabic).toHaveAttribute("dir", "rtl");
-  await expect(arabic).toContainText("بِسْمِ");
+  // text_qpc_hafs encoding (matches the UthmanicHafs font): sukun is U+06E1, not U+0652.
+  await expect(arabic).toContainText("بِسۡمِ");
   await expect(page.locator('article[data-verse-key="1:1"]')).toContainText("In the name of Allāh");
   await expect(page.getByRole("button", { name: "Understand Al-Fatihah ayah 1" })).toContainText("Tap to understand");
 });

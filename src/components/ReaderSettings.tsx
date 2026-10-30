@@ -46,10 +46,17 @@ export function ReaderSettings({
         <DialogHeader className="border-b border-[var(--line)] px-6 py-5 text-left">
           <div className="flex items-start justify-between">
             <div>
-              <DialogTitle className="text-xl font-medium">Reading settings</DialogTitle>
-              <DialogDescription className="mt-2 text-sm text-[var(--muted)]">Adjust the page to your rhythm.</DialogDescription>
+              <DialogTitle className="text-xl font-medium">
+                Reading settings
+              </DialogTitle>
+              <DialogDescription className="mt-2 text-sm text-[var(--muted)]">
+                Adjust the page to your rhythm.
+              </DialogDescription>
             </div>
-            <DialogClose className="icon-button -mr-2 -mt-2" aria-label="Close reading settings">
+            <DialogClose
+              className="icon-button -mr-2 -mt-2"
+              aria-label="Close reading settings"
+            >
               <X className="h-5 w-5" />
             </DialogClose>
           </div>
@@ -59,26 +66,36 @@ export function ReaderSettings({
           <label className="flex min-h-[76px] cursor-pointer items-center justify-between gap-4 border-b border-[var(--line)] py-4">
             <span>
               <span className="block text-sm font-medium">Transliteration</span>
-              <span className="mt-1 block text-xs text-[var(--muted)]">Show Latin pronunciation beneath the translation.</span>
+              <span className="mt-1 block text-xs text-[var(--muted)]">
+                Show Latin pronunciation beneath the translation.
+              </span>
             </span>
             <input
               type="checkbox"
               role="switch"
               checked={showTransliteration}
-              onChange={(event) => onTransliterationChange(event.target.checked)}
+              onChange={event => onTransliterationChange(event.target.checked)}
               className="h-5 w-5 shrink-0 cursor-pointer accent-[var(--gold)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--gold)]"
             />
           </label>
 
           <div className="border-b border-[var(--line)] py-5">
             <p className="text-sm font-medium">Text size</p>
-            <p className="mt-1 text-xs text-[var(--muted)]">Scales Arabic and translation together.</p>
-            <div className="mt-4 grid grid-cols-3 gap-2 rounded-xl bg-[var(--canvas)] p-1" role="group" aria-label="Text size">
-              {([
-                [0.9, "Compact"],
-                [1, "Default"],
-                [1.12, "Large"],
-              ] as Array<[FontScale, string]>).map(([value, label]) => (
+            <p className="mt-1 text-xs text-[var(--muted)]">
+              Scales Arabic and translation together.
+            </p>
+            <div
+              className="mt-4 grid grid-cols-3 gap-2 rounded-xl bg-[var(--canvas)] p-1"
+              role="group"
+              aria-label="Text size"
+            >
+              {(
+                [
+                  [0.9, "Compact"],
+                  [1, "Default"],
+                  [1.12, "Large"],
+                ] as Array<[FontScale, string]>
+              ).map(([value, label]) => (
                 <button
                   key={label}
                   type="button"
@@ -98,9 +115,20 @@ export function ReaderSettings({
 
           <div className="border-b border-[var(--line)] py-5">
             <p className="text-sm font-medium">Daily ayah time</p>
-            <p className="mt-1 text-xs text-[var(--muted)]">A gentle label for when you like to read. No notifications.</p>
-            <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Daily ayah time">
-              {([{ value: null, label: "None" }, ...ANCHORS] as Array<{ value: Anchor | null; label: string }>).map((item) => (
+            <p className="mt-1 text-xs text-[var(--muted)]">
+              A gentle label for when you like to read. No notifications.
+            </p>
+            <div
+              className="mt-4 flex flex-wrap gap-2"
+              role="group"
+              aria-label="Daily ayah time"
+            >
+              {(
+                [{ value: null, label: "None" }, ...ANCHORS] as Array<{
+                  value: Anchor | null;
+                  label: string;
+                }>
+              ).map(item => (
                 <button
                   key={item.label}
                   type="button"
@@ -122,22 +150,24 @@ export function ReaderSettings({
             <p>Uthmani Arabic · Sahih International</p>
             <p className="mt-1">Recitation by Mishary Rashid Alafasy</p>
             <p className="mt-1">Content served via {source}.</p>
-            <Link
-              to="/privacy"
-              onClick={() => onOpenChange(false)}
-              className="mt-3 inline-flex min-h-11 items-center text-[var(--gold)] underline decoration-[var(--line)] underline-offset-4 outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)]"
-            >
-              Privacy, in plain words
-            </Link>
-            <a
-              href="https://quran.com/developers"
-              target="_blank"
-              rel="noreferrer"
-              className="mt-3 inline-flex min-h-11 items-center gap-2 text-[var(--gold)] underline decoration-[var(--line)] underline-offset-4 outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)]"
-            >
-              Data and attribution <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-            <SupportLink className="mt-3 flex min-h-11 items-center" />
+            <div className="mt-2 flex flex-col items-start">
+              <Link
+                to="/privacy"
+                onClick={() => onOpenChange(false)}
+                className="inline-flex min-h-11 items-center text-[var(--gold)] underline decoration-[var(--line)] underline-offset-4 outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)]"
+              >
+                Privacy, in plain words
+              </Link>
+              <a
+                href="https://quran.com/developers"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex min-h-11 items-center gap-2 text-[var(--gold)] underline decoration-[var(--line)] underline-offset-4 outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)]"
+              >
+                Data and attribution <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+              <SupportLink className="flex min-h-11 items-center" />
+            </div>
           </div>
         </div>
       </DialogContent>

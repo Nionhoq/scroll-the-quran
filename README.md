@@ -1,59 +1,65 @@
 # Scroll The Quran
 
-A mobile-first, full-screen Quran reader built around one calm loop: read, swipe, listen, understand, and return.
+A calm, private Quran reader: one ayah at a time, with recitation, translation and tafsir.
+No accounts, no ads, no tracking. Built as a mobile-first web app that installs to the home screen.
 
-## MVP features
+## Features
 
-- One ayah per viewport with vertical snap scrolling and keyboard navigation
-- Uthmani Arabic, Sahih International, optional transliteration, and scalable text
-- Ayah audio by Mishary Rashid Alafasy with continuous playback and word highlighting
-- Tap-to-understand sheet with an unedited Ibn Kathir (Abridged) excerpt and word meanings
-- Searchable surah navigator and automatic continuation into the next surah
-- Browser-local last-read position, daily streak, and reading preferences
-- Subtle Islamic geometric ambience with floating gold light and a static reduced-motion alternative
-- Safe-area spacing, long-ayah scrolling, and responsive layouts
+- **Reader** — one ayah per screen, vertical swipe, keyboard (↑/↓, j/k), word-by-word highlighting during recitation, tafsir drawer, transliteration and text size.
+- **Daily Ayah** — one ayah is enough. "Done for today" after listening to the recitation, or opening the tafsir for 5 s (30 s of reading for long ayahs). A gentle week count ("5 of the last 7 days") that never resets to zero. Optional time label (After Fajr, Morning, …), no notifications.
+- **How do you feel?** (`/feel`) — eight feelings, each opening a few hand-picked ayahs. The selection lives in `src/data/feelings.json` and is **pending scholar review**. "I'm not okay" opens Canada 9-8-8, 911 and findahelpline.com. The chosen feeling is never stored, sent or put in a URL.
+- **Share** — every ayah has a link like `/13/28`. The server adds link-preview tags and a 1200×630 preview image, so WhatsApp and others show the ayah. `sitemap.xml` lists all 6,350 pages.
+- **Artwork** — "light through a mashrabiya": light passing through a carved lattice onto a wall. It follows the time of day (Fajr, day, Maghrib, night) and takes a calm tint inside the feelings flow. Static under reduced motion. Preview any state with `?scene=fajr|day|maghrib|night` and `?tint=calm|warm|cool|rising|bright`.
+- **Offline** — service worker caches the app and any surah or recitation opened once.
+- **Privacy** — the browser only ever talks to this site (fonts, data and audio are all same-origin). Strict Content-Security-Policy on every response. One anonymous daily count (`new`, `1`, `2-7`, `8-30`, `31+`), nothing else.
+- **Support** — set `SUPPORT_URL` to show a quiet "Support Scroll Quran" link (settings + done card). No payments in the app.
 
 ## Run
 
 ```bash
 npm install
-npm run dev
+npm run dev          # http://localhost:3000
 ```
 
-The development server runs on port 3000. Production:
+Production:
 
 ```bash
-npm run check
 npm run build
-npm start
+npm start            # NODE_ENV=production node dist/boot.js
 ```
 
-## Quran Foundation configuration
+Docker: `docker build -t scroll-quran . && docker run -p 3000:3000 -v scroll-data:/app/data scroll-quran`
 
-The backend uses `@quranjs/api/server`. Credentials stay server-only. Without credentials, the app uses Quran.com's public v4 API as its verified fallback.
+Configuration is optional — see `.env.example` (`PUBLIC_ORIGIN`, `SUPPORT_URL`, `COUNTS_FILE`/`DATABASE_URL`).
+
+## Tests
 
 ```bash
-QF_CLIENT_ID=your_client_id
-QF_CLIENT_SECRET=your_client_secret
-QF_ENV=prelive
+npm run lint && npm run check   # ESLint + TypeScript
+npm test                        # unit tests (Vitest)
+npm run test:e2e                # browser tests (Playwright, mobile + desktop)
 ```
 
-Pre-live contains Surahs 1–2 only; other surahs fall back to Quran.com. After production approval, use production credentials and set `QF_ENV=production`. Never expose `QF_CLIENT_SECRET` through a `VITE_` variable or client code.
+To reuse an installed Chromium: `PW_CHROMIUM_PATH=/path/to/chrome npm run test:e2e`.
+Visual baselines live in `tests/phase7.spec.ts-snapshots/` (Linux). Regenerate on another OS with `--update-snapshots`.
 
-## Data and persistence
+## Quran data
 
-- Arabic, translations, word data, audio, and tafsir: Quran Foundation / Quran.com
-- Translation resource: Sahih International (`20`)
-- Tafsir resource: Ibn Kathir (Abridged), English (`169`)
-- Recitation: Mishary Rashid Alafasy (`7`)
-- Last-read position, streak, transliteration, and font size are stored only in this browser. They do not sync across devices, and clearing browser data removes them.
-
-Offline surah downloads, accounts, cloud-synced notes/bookmarks, and image-card sharing are intentionally outside this MVP.
+`public/data/` holds all 114 surahs as static JSON (built by `npm run data:quran`). The Arabic uses Quran.com's
+`text_qpc_hafs` encoding, which matches the bundled UthmanicHafs font. Do not switch to `text_uthmani`: with this
+font it draws placeholder circles on ~36% of ayahs. A unit test checks every character of all 6,236 ayahs against the font.
 
 ## Structure
 
-- `src/pages/Home.tsx` — reading loop, navigation, audio state, and persistence wiring
-- `src/components/` — ayah feed, audio dock, tafsir sheet, surah navigator, and settings
-- `api/quranService.ts` — server-side provider integration, normalization, fallback, and attribution
-- `api/quranRouter.ts` — validated tRPC endpoints
-- `contracts/quran.ts` — shared Quran data contracts
+- `src/pages/` — `Home` (reader), `Feel` (feelings + crisis), `Privacy`
+- `src/components/` — ayah view, audio dock, tafsir drawer, surah picker, settings, done card, share, background scene
+- `src/lib/` — pure logic with unit tests: `dailyAyah`, `scene`, `share`, `install`
+- `api/` — Hono server: audio proxy, tafsir, ping, preview images (`/og`), sitemap, HTML preview tags, security headers
+- `contracts/` — shared types and validators (feelings, ping, Quran data)
+- `tests/` — Playwright suites per phase, plus `fixtures.ts` which fails any test that makes a third-party request or sends a feeling
+
+## Before launch
+
+- Scholar/imam sign-off on `src/data/feelings.json`; then set `"reviewStatus": "approved"` (hides the review note).
+- Quran Foundation production credentials and attribution terms; confirm the preview-image font use (see `CREDITS.md`).
+- Set `PUBLIC_ORIGIN` and `SUPPORT_URL` on the host.
