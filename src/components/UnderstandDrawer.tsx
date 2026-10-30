@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ExternalLink, LoaderCircle, Pause, Play, RefreshCw } from "lucide-react";
 import type { Ayah, Chapter, TafsirExcerpt } from "@contracts/quran";
+import { IS_PREVIEW } from "@/lib/preview";
 import {
   Drawer,
   DrawerClose,
@@ -25,7 +26,8 @@ export function UnderstandDrawer({ ayah, chapter, onOpenChange, isPlaying, onPla
   const tafsir = useQuery({
     queryKey: ["tafsir", verseKey],
     queryFn: async (): Promise<TafsirExcerpt> => {
-      const response = await fetch(`/api/tafsir/${verseKey}`, {
+      const url = IS_PREVIEW ? `./preview/tafsir/${verseKey.replace(":", "-")}.json` : `/api/tafsir/${verseKey}`;
+      const response = await fetch(url, {
         credentials: "omit",
         referrerPolicy: "no-referrer",
       });

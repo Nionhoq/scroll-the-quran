@@ -12,7 +12,7 @@ function copyPublicFiles(): Plugin {
     apply: "build",
     async closeBundle() {
       const source = path.resolve(__dirname, "public");
-      const destination = path.resolve(__dirname, "dist/public");
+      const destination = path.resolve(__dirname, process.env.VITE_PREVIEW === "1" ? "dist-preview" : "dist/public");
       const files = fs.readdirSync(source, { recursive: true, withFileTypes: true })
         .filter((entry) => entry.isFile())
         .map((entry) => path.relative(source, path.join(entry.parentPath, entry.name)));
@@ -50,7 +50,10 @@ function copyPublicFiles(): Plugin {
 }
 
 // https://vite.dev/config/
+const PREVIEW = process.env.VITE_PREVIEW === "1";
+
 export default defineConfig(({ command }) => ({
+  base: PREVIEW ? "./" : "/",
   plugins: [
     devServer({ entry: "api/boot.ts", exclude: [/^\/(?!api\/).*$/] }),
     inspectAttr(), react(), copyPublicFiles()],
@@ -70,7 +73,7 @@ export default defineConfig(({ command }) => ({
   },
   envDir: path.resolve(__dirname),
   build: {
-    outDir: path.resolve(__dirname, "dist/public"),
+    outDir: path.resolve(__dirname, PREVIEW ? "dist-preview" : "dist/public"),
     emptyOutDir: true,
   },
 }));

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getPingBucket } from "@contracts/ping";
 import { calculateStreak, localDay, readingDays } from "./useReadingProgress";
+import { IS_PREVIEW } from "@/lib/preview";
 
 const LAST_PING_KEY = "scroll-quran:last-ping";
 
@@ -8,6 +9,7 @@ export function useDailyPing() {
   const [bucket] = useState(() => getPingBucket(calculateStreak(readingDays())));
 
   useEffect(() => {
+    if (IS_PREVIEW) return; // no server behind a static preview
     const today = localDay();
     try {
       if (localStorage.getItem(LAST_PING_KEY) === today) return;
