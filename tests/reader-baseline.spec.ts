@@ -147,7 +147,8 @@ test("reduced motion stops the ambient scene", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await openReader(page);
 
-  await expect(page.locator(".ambient-pattern")).toHaveCSS("animation-name", "none");
-  await expect(page.locator(".ambient-rays")).toHaveCSS("animation-name", "none");
-  await expect(page.locator(".ambient-particle").first()).toBeHidden();
+  // Phase 7 replaced the flat lattice with the mashrabiya light scene; same guarantees.
+  await expect(page.locator(".scene-glow")).toHaveCSS("animation-name", "none");
+  await expect(page.locator(".scene-lattice-wrap")).toHaveCSS("transition-duration", "0s");
+  await expect(page.locator(".scene-mote").first()).toBeHidden();
 });

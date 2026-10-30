@@ -1,4 +1,4 @@
-const VERSION = "scroll-quran-v3";
+const VERSION = "scroll-quran-v4";
 const SHELL_CACHE = `${VERSION}-shell`;
 const DATA_CACHE = `${VERSION}-data`;
 const AUDIO_CACHE = `${VERSION}-audio`;

@@ -188,133 +188,195 @@
     height: 4px;
     background: var(--line);
   }
-
-  .ambient-background {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    overflow: hidden;
-    pointer-events: none;
-    background:
-      radial-gradient(ellipse 76% 58% at 50% 43%, oklch(0.68 0.125 78 / 0.075), transparent 72%),
-      var(--canvas);
-    isolation: isolate;
-  }
-
-  .ambient-aura {
-    position: absolute;
-    width: 58vmax;
-    height: 58vmax;
-    border-radius: 50%;
-    filter: blur(90px);
-    opacity: 0.17;
-    will-change: transform;
-  }
-
-  .ambient-aura-primary {
-    left: -28vmax;
-    top: -24vmax;
-    background: radial-gradient(circle, oklch(0.68 0.125 78 / 0.32), transparent 67%);
-    animation: ambient-aura-primary 26s ease-in-out infinite alternate;
-  }
-
-  .ambient-aura-secondary {
-    right: -32vmax;
-    bottom: -30vmax;
-    background: radial-gradient(circle, oklch(0.82 0.115 83 / 0.2), transparent 68%);
-    animation: ambient-aura-secondary 32s ease-in-out infinite alternate;
-  }
-
-  .ambient-rays {
-    position: absolute;
-    inset: -35%;
-    opacity: 0.42;
-    background: conic-gradient(
-      from 12deg at 50% 44%,
-      transparent 0deg 18deg,
-      oklch(0.82 0.115 83 / 0.025) 24deg 29deg,
-      transparent 36deg 82deg,
-      oklch(0.68 0.125 78 / 0.022) 89deg 94deg,
-      transparent 102deg 164deg,
-      oklch(0.82 0.115 83 / 0.018) 171deg 176deg,
-      transparent 184deg 258deg,
-      oklch(0.68 0.125 78 / 0.02) 266deg 271deg,
-      transparent 278deg 360deg
-    );
-    filter: blur(14px);
-    mask-image: radial-gradient(ellipse at center, black 0%, transparent 66%);
-    animation: ambient-rays 90s linear infinite;
-  }
-
-  .ambient-pattern {
-    position: absolute;
-    inset: -8%;
-    width: 116%;
-    height: 116%;
-    color: oklch(0.82 0.115 83 / 0.42);
-    opacity: 0.65;
-    mask-image: radial-gradient(ellipse 76% 72% at 50% 47%, oklch(0 0 0 / 0.24) 0%, oklch(0 0 0 / 0.7) 52%, black 100%);
-    animation: ambient-pattern-drift 80s ease-in-out infinite alternate;
-  }
-
-  .ambient-particles {
-    position: absolute;
-    inset: 0;
-  }
-
-  .ambient-particle {
-    --drift-x: 20px;
-    --drift-y: 20px;
-    --particle-opacity: 0.4;
-    position: absolute;
-    border-radius: 50%;
-    opacity: 0;
-    background: var(--gold-bright);
-    box-shadow:
-      0 0 6px oklch(0.82 0.115 83 / 0.7),
-      0 0 18px oklch(0.68 0.125 78 / 0.38);
-    animation-name: ambient-particle-float;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-    will-change: transform, opacity;
-  }
-
-  .ambient-vignette {
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(to bottom, oklch(0.156 0.003 65 / 0.34), transparent 18%, transparent 77%, oklch(0.156 0.003 65 / 0.58)),
-      radial-gradient(ellipse at center, transparent 44%, oklch(0.156 0.003 65 / 0.5) 100%);
-  }
 }
 
-@keyframes ambient-aura-primary {
-  from { transform: translate3d(-3%, -2%, 0) scale(0.94); }
-  to { transform: translate3d(15%, 11%, 0) scale(1.08); }
+/* ---------------------------------------------------------------------------
+   Scene: light through a mashrabiya
+   Colors are registered so time-of-day and feeling changes cross-fade smoothly.
+--------------------------------------------------------------------------- */
+@property --light { syntax: "<color>"; inherits: true; initial-value: oklch(0.93 0.06 88); }
+@property --wall-a { syntax: "<color>"; inherits: true; initial-value: oklch(0.2 0.012 70); }
+@property --wall-b { syntax: "<color>"; inherits: true; initial-value: oklch(0.14 0.006 65); }
+
+.scene {
+  /* defaults = day */
+  --light: oklch(0.93 0.06 88);
+  --wall-a: oklch(0.2 0.012 70);
+  --wall-b: oklch(0.14 0.006 65);
+  --source-x: 86%;
+  --source-y: -12%;
+  --pool-x: 74%;
+  --pool-y: 12%;
+  --tilt: -14deg;
+  --beam-angle: 128deg;
+  --base: 1;
+  --intensity: 1;
+  --speed: 1;
+  --p-far: 0px;
+  --p-mid: 0px;
+  --p-near: 0px;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  isolation: isolate;
+  background: var(--canvas);
+  transition: --light 2.4s ease, --wall-a 2.4s ease, --wall-b 2.4s ease;
 }
 
-@keyframes ambient-aura-secondary {
-  from { transform: translate3d(4%, 3%, 0) scale(1); }
-  to { transform: translate3d(-14%, -12%, 0) scale(1.12); }
+.scene[data-scene="fajr"] {
+  --light: oklch(0.82 0.09 35);
+  --wall-a: oklch(0.21 0.035 15);
+  --wall-b: oklch(0.13 0.025 285);
+  --source-x: -14%;
+  --source-y: 78%;
+  --pool-x: 18%;
+  --pool-y: 24%;
+  --tilt: 16deg;
+  --beam-angle: 24deg;
 }
 
-@keyframes ambient-rays {
-  to { transform: rotate(360deg); }
+.scene[data-scene="maghrib"] {
+  --light: oklch(0.78 0.14 60);
+  --wall-a: oklch(0.21 0.045 52);
+  --wall-b: oklch(0.13 0.018 35);
+  --source-x: 112%;
+  --source-y: 70%;
+  --pool-x: 82%;
+  --pool-y: 24%;
+  --tilt: -20deg;
+  --beam-angle: 156deg;
 }
 
-@keyframes ambient-pattern-drift {
-  from { transform: translate3d(-1.5%, -1%, 0); }
-  to { transform: translate3d(1.5%, 1%, 0); }
+.scene[data-scene="night"] {
+  --light: oklch(0.86 0.03 250);
+  --wall-a: oklch(0.17 0.045 272);
+  --wall-b: oklch(0.1 0.03 265);
+  --source-x: 26%;
+  --source-y: -14%;
+  --pool-x: 32%;
+  --pool-y: 10%;
+  --tilt: 8deg;
+  --beam-angle: 76deg;
+  --base: 0.62;
 }
 
-@keyframes ambient-particle-float {
-  0% { transform: translate3d(calc(0px - var(--drift-x)), 0, 0); opacity: 0; }
-  18% { opacity: var(--particle-opacity); }
-  25% { transform: translate3d(0, calc(0px - var(--drift-y)), 0); }
-  50% { transform: translate3d(var(--drift-x), 0, 0); opacity: var(--particle-opacity); }
-  75% { transform: translate3d(0, var(--drift-y), 0); }
-  88% { opacity: var(--particle-opacity); }
-  100% { transform: translate3d(calc(0px - var(--drift-x)), 0, 0); opacity: 0; }
+/* Feeling tints override time of day (palette names only — never feeling names). */
+.scene[data-tint="calm"] { --light: oklch(0.85 0.06 228); --wall-a: oklch(0.19 0.04 240); --wall-b: oklch(0.11 0.028 252); --base: 0.9; }
+.scene[data-tint="warm"] { --light: oklch(0.87 0.085 78); --wall-a: oklch(0.2 0.025 62); --wall-b: oklch(0.13 0.012 55); --base: 0.85; }
+.scene[data-tint="cool"] { --light: oklch(0.74 0.03 220); --wall-a: oklch(0.16 0.018 232); --wall-b: oklch(0.1 0.012 240); --speed: 2.2; }
+.scene[data-tint="rising"] { --light: oklch(0.9 0.07 76); --wall-a: oklch(0.19 0.022 70); --wall-b: oklch(0.12 0.01 60); }
+.scene[data-tint="bright"] { --light: oklch(0.94 0.09 86); --wall-a: oklch(0.22 0.035 76); --wall-b: oklch(0.13 0.015 68); --base: 1; }
+
+.scene-wall {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 120% 90% at var(--source-x) var(--source-y), var(--wall-a), transparent 70%),
+    linear-gradient(to bottom, var(--wall-a), var(--wall-b));
+}
+
+/* Far layer: the light source itself, just off-screen. */
+.scene-glow {
+  position: absolute;
+  left: calc(var(--source-x) - 45vmax);
+  top: calc(var(--source-y) - 45vmax);
+  width: 90vmax;
+  height: 90vmax;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in oklch, var(--light) 55%, transparent), transparent 62%);
+  opacity: calc(0.42 * var(--base) * var(--intensity));
+  transform: translate3d(0, var(--p-far), 0);
+  transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.6s ease;
+  animation: scene-breathe calc(14s * var(--speed)) ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+
+/* Mid layer: the lattice's light and shadow thrown across the wall in perspective. */
+.scene-lattice-wrap {
+  position: absolute;
+  left: calc(var(--pool-x) - 48vmax);
+  top: calc(var(--pool-y) - 38vmax);
+  width: 96vmax;
+  height: 76vmax;
+  transform: translate3d(0, var(--p-mid), 0) perspective(1100px) rotateX(38deg) rotateZ(var(--tilt)) skewX(calc(var(--tilt) * -0.6));
+  transform-origin: 50% 50%;
+  opacity: calc(0.62 * var(--base) * var(--intensity));
+  filter: blur(1.4px);
+  transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.6s ease;
+  will-change: transform;
+}
+
+.scene-lattice {
+  position: absolute;
+  inset: 0;
+}
+
+.scene-lattice-light {
+  fill: var(--light);
+}
+
+/* The carved bars of the screen: they block the light, so they take the wall's color. */
+.scene-lattice-bars {
+  stroke: var(--wall-a);
+}
+
+/* Near layer: a single soft beam with dust motes caught in it. */
+.scene-beam {
+  position: absolute;
+  left: var(--source-x);
+  top: var(--source-y);
+  width: 150vmax;
+  height: 26vmax;
+  transform-origin: 0 50%;
+  transform: translate3d(0, calc(-50% + var(--p-near)), 0) rotate(var(--beam-angle));
+  background: linear-gradient(to right, color-mix(in oklch, var(--light) 22%, transparent), color-mix(in oklch, var(--light) 7%, transparent) 55%, transparent 85%);
+  mask-image: linear-gradient(to bottom, transparent, black 30%, black 70%, transparent);
+  filter: blur(18px);
+  opacity: calc(0.75 * var(--base) * var(--intensity));
+  transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.6s ease;
+}
+
+.scene-mote {
+  --drift: 18px;
+  position: absolute;
+  border-radius: 50%;
+  background: var(--light);
+  box-shadow: 0 0 6px var(--light);
+  opacity: 0;
+  filter: blur(0.2px);
+  animation-name: scene-mote;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+/* Readability: the ayah always sits in the calmest, darkest part of the room. */
+.scene-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 54% at 50% 52%, oklch(0.12 0.006 65 / 0.78), oklch(0.12 0.006 65 / 0.4) 70%, transparent 100%),
+    linear-gradient(to bottom, oklch(0.12 0.005 65 / 0.62), oklch(0.12 0.005 65 / 0.18) 12%, transparent 22%, transparent 74%, oklch(0.12 0.005 65 / 0.66));
+}
+
+.scene[data-paused] *,
+.scene[data-paused] {
+  animation-play-state: paused !important;
+}
+
+@keyframes scene-breathe {
+  from { opacity: calc(0.34 * var(--base) * var(--intensity)); }
+  to { opacity: calc(0.5 * var(--base) * var(--intensity)); }
+}
+
+@keyframes scene-mote {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  20% { opacity: 0.55; }
+  50% { transform: translate3d(var(--drift), calc(var(--drift) * -0.6), 0); opacity: 0.35; }
+  80% { opacity: 0.5; }
+  100% { transform: translate3d(calc(var(--drift) * 1.6), calc(var(--drift) * 0.4), 0); opacity: 0; }
 }
 
 @media (max-width: 640px) {
@@ -333,14 +395,15 @@
     transition-duration: 0.01ms !important;
   }
 
-  .ambient-aura,
-  .ambient-rays,
-  .ambient-pattern {
+  /* Static scene: no drifting light, no parallax, no motes. */
+  .scene-glow,
+  .scene-lattice-wrap,
+  .scene-beam {
     animation: none !important;
-    transform: none !important;
+    transition: none !important;
   }
 
-  .ambient-particle {
+  .scene-mote {
     display: none;
   }
 }

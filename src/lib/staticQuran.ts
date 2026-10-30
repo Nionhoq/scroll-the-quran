@@ -9,7 +9,7 @@ async function fetchStaticJson<T>(url: string): Promise<T> {
   if (!response.ok) throw new Error(`Quran data unavailable (${response.status})`);
   if ("caches" in window) {
     const copy = response.clone();
-    void caches.open("scroll-quran-v3-data")
+    void caches.open("scroll-quran-v4-data")
       .then((cache) => cache.put(url, copy))
       .catch(() => {
         // The network response remains usable when Cache Storage is unavailable.

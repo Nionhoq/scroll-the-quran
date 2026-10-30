@@ -1,0 +1,14 @@
+{
+  "reviewStatus": "pending-scholar-review",
+  "note": "Placeholder selection. Must be reviewed and signed off by a qualified scholar before launch. Edit verse keys here only.",
+  "feelings": [
+    { "id": "stressed", "label": "Stressed", "verses": ["13:28", "94:5", "94:6", "65:3"] },
+    { "id": "anxious", "label": "Anxious", "verses": ["2:286", "3:173", "9:51"] },
+    { "id": "sad", "label": "Sad", "verses": ["9:40", "12:86", "93:3"] },
+    { "id": "lonely", "label": "Lonely", "verses": ["2:186", "50:16", "20:46"] },
+    { "id": "angry", "label": "Angry", "verses": ["3:134", "42:37", "41:34"] },
+    { "id": "hopeless", "label": "Hopeless", "verses": ["39:53", "12:87", "65:7"] },
+    { "id": "grateful", "label": "Grateful", "verses": ["14:7", "55:13", "2:152"] },
+    { "id": "lost", "label": "Lost", "verses": ["1:6", "93:7", "29:69"] }
+  ]
+}

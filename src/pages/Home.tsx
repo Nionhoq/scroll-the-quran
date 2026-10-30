@@ -1,7 +1,9 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Navigate, useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, ChevronDown, LoaderCircle, RefreshCw, Settings2 } from "lucide-react";
+import { AlertCircle, ChevronDown, HeartHandshake, LoaderCircle, RefreshCw, Settings2 } from "lucide-react";
+import { Link } from "react-router";
+import { ShareButton } from "@/components/ShareButton";
 import type { Ayah } from "@contracts/quran";
 import { getStaticChapter, getStaticChapters } from "@/lib/staticQuran";
 import { AyahView } from "@/components/AyahView";
@@ -314,12 +316,13 @@ export default function Home() {
 
   return (
     <main className="relative isolate h-[100dvh] overflow-hidden bg-[var(--canvas)] text-[var(--cream)]">
-      <AmbientBackground />
+      <AmbientBackground offset={currentIndex} />
       <header className="pointer-events-none fixed inset-x-0 top-0 z-30 px-4 pt-[max(16px,env(safe-area-inset-top))] sm:px-8">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-2">
-          <div className="pointer-events-auto hidden w-28 items-center gap-2 sm:flex" aria-label="Scroll The Quran">
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)]" />
-            <span className="brand-mark text-[10px]">SCROLL</span>
+          <div className="pointer-events-auto flex items-center gap-2 sm:w-28">
+            <Link to="/feel" className="icon-button" aria-label="How do you feel?" title="How do you feel?">
+              <HeartHandshake className="h-[18px] w-[18px]" aria-hidden="true" />
+            </Link>
           </div>
 
           <button
@@ -346,6 +349,7 @@ export default function Home() {
               {daily.recentDays}/7
               <span className="hidden text-[var(--muted)] md:inline">days</span>
             </div>
+            <ShareButton verseKey={currentAyah.verseKey} chapterName={feed.chapter.nameSimple} translation={currentAyah.translation} />
             <button type="button" onClick={() => setSettingsOpen(true)} className="icon-button" aria-label="Reading settings">
               <Settings2 className="h-[18px] w-[18px]" aria-hidden="true" />
             </button>

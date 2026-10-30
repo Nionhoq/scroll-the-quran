@@ -12,6 +12,8 @@ import { REQUEST_ID_HEADER, runWithRequestId } from "./lib/requestcontext";
 import { audioRoutes } from "./routes/audio";
 import { pingRoutes } from "./routes/ping";
 import { tafsirRoutes } from "./routes/tafsir";
+import { ogRoutes } from "./routes/og";
+import { seoRoutes } from "./routes/seo";
 
 const app = new Hono<{ Bindings: HttpBindings }>();
 
@@ -63,8 +65,11 @@ app.use("*", compress());
 app.use("*", async (c, next) => {
   await next();
   applySecurityHeaders(c.res.headers);
-  if (/^\/(?:data|assets|fonts|icons)\//.test(c.req.path)) {
+  if (/^\/(?:assets|fonts|icons)\//.test(c.req.path)) {
     c.res.headers.set("Cache-Control", "public, max-age=31536000, immutable");
+  } else if (c.req.path.startsWith("/data/")) {
+    // Not content-hashed: the text can be corrected, so never mark it immutable.
+    c.res.headers.set("Cache-Control", "public, max-age=3600, stale-while-revalidate=86400");
   }
 });
 
@@ -78,6 +83,8 @@ app.use("*", async (c, next) => {
 });
 
 app.route("/audio", audioRoutes);
+app.route("/og", ogRoutes);
+app.route("/", seoRoutes);
 
 // Scoped to the tRPC route, NOT global: on the dev server (@hono/vite-dev-server)
 // a global bodyLimit breaks bodyless requests. Hono's bodyLimit reads any truthy
