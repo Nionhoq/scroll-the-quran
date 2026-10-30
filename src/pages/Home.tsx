@@ -8,6 +8,9 @@ import { AyahView } from "@/components/AyahView";
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { AudioDock } from "@/components/AudioDock";
 import { InstallCard } from "@/components/InstallCard";
+import { DoneCard } from "@/components/DoneCard";
+import { anchorLabel, gentleStreakLabel } from "@/lib/dailyAyah";
+import { useDailyAyah } from "@/hooks/useDailyAyah";
 import type { FontScale } from "@/components/ReaderSettings";
 
 const UnderstandDrawer = lazy(() => import("@/components/UnderstandDrawer").then((module) => ({ default: module.UnderstandDrawer })));
@@ -16,7 +19,7 @@ const ReaderSettings = lazy(() => import("@/components/ReaderSettings").then((mo
 import { useReadingProgress } from "@/hooks/useReadingProgress";
 
 export default function Home() {
-  const { lastRead, streak, recordRead } = useReadingProgress();
+  const { lastRead, recordRead } = useReadingProgress();
   const params = useParams<{ surah?: string; ayah?: string }>();
   const isDeepLink = params.surah !== undefined;
   const routeChapter = params.surah && /^\d{1,3}$/.test(params.surah) ? Number(params.surah) : NaN;
@@ -57,6 +60,8 @@ export default function Home() {
   });
   const feed = feedQuery.data;
   const currentAyah = feed?.verses[currentIndex] ?? feed?.verses[0];
+  const daily = useDailyAyah(currentAyah);
+  const { markDrawerOpened } = daily;
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -117,6 +122,10 @@ export default function Home() {
   useEffect(() => {
     if (currentAyah) recordRead(chapterId, currentAyah.verseKey);
   }, [chapterId, currentAyah, recordRead]);
+
+  useEffect(() => {
+    if (selectedAyah) markDrawerOpened(selectedAyah.verseKey);
+  }, [selectedAyah, markDrawerOpened]);
 
   useEffect(() => {
     if (!currentAyah) return;
@@ -327,16 +336,26 @@ export default function Home() {
           </button>
 
           <div className="pointer-events-auto flex w-auto items-center justify-end gap-1 sm:w-28">
-            <div className="mr-1 flex h-11 items-center gap-1.5 text-xs tabular-nums text-[var(--cream-soft)]" title="Consecutive reading days. No pressure—just return when you can." aria-label={`${streak} day reading streak`}>
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)]" />
-              {streak}
-              <span className="hidden text-[var(--muted)] md:inline">{streak === 1 ? "day" : "days"}</span>
+            <div
+              className="mr-1 flex h-11 items-center gap-1.5 text-xs tabular-nums text-[var(--cream-soft)]"
+              title="Days with a completed ayah this week. Missing a day never resets it."
+              aria-label={`${gentleStreakLabel(daily.recentDays)}${daily.doneToday ? ", done for today" : ""}`}
+              data-testid="gentle-streak"
+            >
+              <span className={`h-1.5 w-1.5 rounded-full ${daily.doneToday ? "bg-[var(--gold)]" : "border border-[var(--gold)]"}`} />
+              {daily.recentDays}/7
+              <span className="hidden text-[var(--muted)] md:inline">days</span>
             </div>
             <button type="button" onClick={() => setSettingsOpen(true)} className="icon-button" aria-label="Reading settings">
               <Settings2 className="h-[18px] w-[18px]" aria-hidden="true" />
             </button>
           </div>
         </div>
+        {!daily.doneToday && daily.anchor && (
+          <p className="mt-1 text-center text-[11px] tracking-wide text-[var(--muted)]" data-testid="anchor-reminder">
+            Today’s ayah · {anchorLabel(daily.anchor)}
+          </p>
+        )}
       </header>
 
       <div
@@ -395,7 +414,20 @@ export default function Home() {
         </section>
       </div>
 
-      <InstallCard />
+      {daily.celebration ? (
+        <DoneCard
+          reference={`${feed.chapter.nameSimple} · ${daily.celebration}`}
+          recentDays={daily.recentDays}
+          anchor={daily.anchor}
+          onClose={daily.dismissCelebration}
+          onReadOneMore={() => {
+            daily.dismissCelebration();
+            goNext();
+          }}
+        />
+      ) : (
+        <InstallCard />
+      )}
       <AudioDock
         ayah={currentAyah}
         reciterName={feed.reciterName}
@@ -423,6 +455,7 @@ export default function Home() {
         onDurationChange={(event) => setDuration(event.currentTarget.duration)}
         onTimeUpdate={handleAudioTime}
         onEnded={() => {
+          daily.markAudioEnded(currentAyah.verseKey);
           if (chapterId === 114 && currentIndex >= feed.verses.length - 1) {
             setIsPlaying(false);
           } else {
@@ -472,6 +505,8 @@ export default function Home() {
             fontScale={fontScale}
             onFontScaleChange={setFontScale}
             source={feed.source}
+            anchor={daily.anchor}
+            onAnchorChange={daily.setAnchor}
           />
         )}
       </Suspense>

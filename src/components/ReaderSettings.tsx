@@ -1,6 +1,8 @@
 import { ExternalLink, X } from "lucide-react";
 import { Link } from "react-router";
 import type { QuranSource } from "@contracts/quran";
+import { ANCHORS, type Anchor } from "@/lib/dailyAyah";
+import { SupportLink } from "@/components/SupportLink";
 import {
   Dialog,
   DialogClose,
@@ -20,6 +22,8 @@ type Props = {
   fontScale: FontScale;
   onFontScaleChange: (value: FontScale) => void;
   source: QuranSource;
+  anchor: Anchor | null;
+  onAnchorChange: (value: Anchor | null) => void;
 };
 
 export function ReaderSettings({
@@ -30,12 +34,14 @@ export function ReaderSettings({
   fontScale,
   onFontScaleChange,
   source,
+  anchor,
+  onAnchorChange,
 }: Props) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="max-w-md gap-0 rounded-3xl border-[var(--line)] bg-[var(--panel)] p-0 text-[var(--cream)]"
+        className="max-h-[88dvh] max-w-md gap-0 overflow-y-auto rounded-3xl border-[var(--line)] bg-[var(--panel)] p-0 text-[var(--cream)]"
       >
         <DialogHeader className="border-b border-[var(--line)] px-6 py-5 text-left">
           <div className="flex items-start justify-between">
@@ -90,6 +96,28 @@ export function ReaderSettings({
             </div>
           </div>
 
+          <div className="border-b border-[var(--line)] py-5">
+            <p className="text-sm font-medium">Daily ayah time</p>
+            <p className="mt-1 text-xs text-[var(--muted)]">A gentle label for when you like to read. No notifications.</p>
+            <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Daily ayah time">
+              {([{ value: null, label: "None" }, ...ANCHORS] as Array<{ value: Anchor | null; label: string }>).map((item) => (
+                <button
+                  key={item.label}
+                  type="button"
+                  aria-pressed={anchor === item.value}
+                  onClick={() => onAnchorChange(item.value)}
+                  className={`min-h-11 cursor-pointer rounded-full border px-4 text-sm outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-[var(--gold)] ${
+                    anchor === item.value
+                      ? "border-[var(--gold)] text-[var(--cream)]"
+                      : "border-[var(--line)] text-[var(--muted)] hover:text-[var(--cream)]"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="py-5 text-xs leading-5 text-[var(--muted)]">
             <p>Uthmani Arabic · Sahih International</p>
             <p className="mt-1">Recitation by Mishary Rashid Alafasy</p>
@@ -109,6 +137,7 @@ export function ReaderSettings({
             >
               Data and attribution <ExternalLink className="h-3.5 w-3.5" />
             </a>
+            <SupportLink className="mt-3 flex min-h-11 items-center" />
           </div>
         </div>
       </DialogContent>
