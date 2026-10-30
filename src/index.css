@@ -1,0 +1,346 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "UthmanicHafs";
+  src: url("/fonts/UthmanicHafs1Ver18.woff2") format("woff2");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Hanken Grotesk";
+  src: url("/fonts/HankenGrotesk-Variable.woff2") format("woff2");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 100 900;
+}
+
+@font-face {
+  font-family: "Tajawal";
+  src: url("/fonts/Tajawal-Regular.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Tajawal";
+  src: url("/fonts/Tajawal-Medium.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 500;
+}
+
+@layer base {
+  :root {
+    /* Primitive palette */
+    --ink-900: oklch(0.156 0.003 65);
+    --ink-800: oklch(0.19 0.005 65);
+    --sand-100: oklch(0.945 0.018 65);
+    --sand-300: oklch(0.86 0.019 65);
+    --taupe-500: oklch(0.64 0.027 55);
+    --amber-500: oklch(0.68 0.125 78);
+    --amber-300: oklch(0.82 0.115 83);
+
+    /* Semantic palette */
+    --canvas: var(--ink-900);
+    --panel: var(--ink-800);
+    --cream: var(--sand-100);
+    --cream-soft: var(--sand-300);
+    --muted: var(--taupe-500);
+    --gold: var(--amber-500);
+    --gold-bright: var(--amber-300);
+    --dock: oklch(0.19 0.005 65 / 0.9);
+    --line: oklch(0.945 0.018 65 / 0.12);
+    --hover: oklch(0.945 0.018 65 / 0.06);
+
+    --background: 0 0% 8%;
+    --foreground: 30 30% 94%;
+    --border: 30 10% 22%;
+    --input: 30 10% 22%;
+    --ring: 42 80% 50%;
+    --radius: 0.75rem;
+  }
+
+  * {
+    box-sizing: border-box;
+    border-color: var(--line);
+  }
+
+  html {
+    height: 100%;
+    background: var(--canvas);
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    min-width: 320px;
+    min-height: 100dvh;
+    margin: 0;
+    overflow: hidden;
+    background: var(--canvas);
+    color: var(--cream);
+    font-family: "Hanken Grotesk", sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #root {
+    height: 100%;
+  }
+
+  button,
+  a,
+  input {
+    font: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  ::selection {
+    background: oklch(0.68 0.125 78 / 0.28);
+    color: var(--cream);
+  }
+}
+
+@layer components {
+  .brand-mark {
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    color: var(--cream-soft);
+  }
+
+  .font-arabic-ui {
+    font-family: "Tajawal", "Traditional Arabic", serif;
+  }
+
+  .quran-feed {
+    scrollbar-width: none;
+    scroll-behavior: auto;
+  }
+
+  .quran-feed::-webkit-scrollbar,
+  .ayah-content::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ayah-content {
+    scrollbar-width: none;
+    overscroll-behavior: auto;
+  }
+
+  .quran-arabic {
+    font-family: "UthmanicHafs", "Traditional Arabic", serif;
+    font-weight: 400;
+    line-height: 1.9;
+    text-align: center;
+  }
+
+  .quran-word {
+    border-radius: 0.15em;
+    transition: color 160ms ease-out, text-shadow 160ms ease-out;
+  }
+
+  .quran-word-active {
+    color: var(--gold-bright);
+    text-shadow: 0 0 24px oklch(0.68 0.125 78 / 0.2);
+  }
+
+  .icon-button {
+    display: inline-flex;
+    height: 44px;
+    width: 44px;
+    flex-shrink: 0;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    color: var(--muted);
+    outline: none;
+    transition: color 150ms ease-out, background-color 150ms ease-out, transform 150ms ease-out;
+  }
+
+  .icon-button:hover {
+    background: var(--hover);
+    color: var(--cream);
+  }
+
+  .icon-button:active {
+    transform: scale(0.94);
+  }
+
+  .icon-button:focus-visible {
+    box-shadow: 0 0 0 2px var(--gold);
+  }
+
+  .icon-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.3;
+  }
+
+  [data-slot="drawer-content"] > div:first-child {
+    width: 44px;
+    height: 4px;
+    background: var(--line);
+  }
+
+  .ambient-background {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 76% 58% at 50% 43%, oklch(0.68 0.125 78 / 0.075), transparent 72%),
+      var(--canvas);
+    isolation: isolate;
+  }
+
+  .ambient-aura {
+    position: absolute;
+    width: 58vmax;
+    height: 58vmax;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.17;
+    will-change: transform;
+  }
+
+  .ambient-aura-primary {
+    left: -28vmax;
+    top: -24vmax;
+    background: radial-gradient(circle, oklch(0.68 0.125 78 / 0.32), transparent 67%);
+    animation: ambient-aura-primary 26s ease-in-out infinite alternate;
+  }
+
+  .ambient-aura-secondary {
+    right: -32vmax;
+    bottom: -30vmax;
+    background: radial-gradient(circle, oklch(0.82 0.115 83 / 0.2), transparent 68%);
+    animation: ambient-aura-secondary 32s ease-in-out infinite alternate;
+  }
+
+  .ambient-rays {
+    position: absolute;
+    inset: -35%;
+    opacity: 0.42;
+    background: conic-gradient(
+      from 12deg at 50% 44%,
+      transparent 0deg 18deg,
+      oklch(0.82 0.115 83 / 0.025) 24deg 29deg,
+      transparent 36deg 82deg,
+      oklch(0.68 0.125 78 / 0.022) 89deg 94deg,
+      transparent 102deg 164deg,
+      oklch(0.82 0.115 83 / 0.018) 171deg 176deg,
+      transparent 184deg 258deg,
+      oklch(0.68 0.125 78 / 0.02) 266deg 271deg,
+      transparent 278deg 360deg
+    );
+    filter: blur(14px);
+    mask-image: radial-gradient(ellipse at center, black 0%, transparent 66%);
+    animation: ambient-rays 90s linear infinite;
+  }
+
+  .ambient-pattern {
+    position: absolute;
+    inset: -8%;
+    width: 116%;
+    height: 116%;
+    color: oklch(0.82 0.115 83 / 0.42);
+    opacity: 0.65;
+    mask-image: radial-gradient(ellipse 76% 72% at 50% 47%, oklch(0 0 0 / 0.24) 0%, oklch(0 0 0 / 0.7) 52%, black 100%);
+    animation: ambient-pattern-drift 80s ease-in-out infinite alternate;
+  }
+
+  .ambient-particles {
+    position: absolute;
+    inset: 0;
+  }
+
+  .ambient-particle {
+    --drift-x: 20px;
+    --drift-y: 20px;
+    --particle-opacity: 0.4;
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0;
+    background: var(--gold-bright);
+    box-shadow:
+      0 0 6px oklch(0.82 0.115 83 / 0.7),
+      0 0 18px oklch(0.68 0.125 78 / 0.38);
+    animation-name: ambient-particle-float;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    will-change: transform, opacity;
+  }
+
+  .ambient-vignette {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to bottom, oklch(0.156 0.003 65 / 0.34), transparent 18%, transparent 77%, oklch(0.156 0.003 65 / 0.58)),
+      radial-gradient(ellipse at center, transparent 44%, oklch(0.156 0.003 65 / 0.5) 100%);
+  }
+}
+
+@keyframes ambient-aura-primary {
+  from { transform: translate3d(-3%, -2%, 0) scale(0.94); }
+  to { transform: translate3d(15%, 11%, 0) scale(1.08); }
+}
+
+@keyframes ambient-aura-secondary {
+  from { transform: translate3d(4%, 3%, 0) scale(1); }
+  to { transform: translate3d(-14%, -12%, 0) scale(1.12); }
+}
+
+@keyframes ambient-rays {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ambient-pattern-drift {
+  from { transform: translate3d(-1.5%, -1%, 0); }
+  to { transform: translate3d(1.5%, 1%, 0); }
+}
+
+@keyframes ambient-particle-float {
+  0% { transform: translate3d(calc(0px - var(--drift-x)), 0, 0); opacity: 0; }
+  18% { opacity: var(--particle-opacity); }
+  25% { transform: translate3d(0, calc(0px - var(--drift-y)), 0); }
+  50% { transform: translate3d(var(--drift-x), 0, 0); opacity: var(--particle-opacity); }
+  75% { transform: translate3d(0, var(--drift-y), 0); }
+  88% { opacity: var(--particle-opacity); }
+  100% { transform: translate3d(calc(0px - var(--drift-x)), 0, 0); opacity: 0; }
+}
+
+@media (max-width: 640px) {
+  .quran-arabic {
+    line-height: 1.85;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .ambient-aura,
+  .ambient-rays,
+  .ambient-pattern {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .ambient-particle {
+    display: none;
+  }
+}

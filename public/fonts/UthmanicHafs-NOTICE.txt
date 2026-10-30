@@ -1,0 +1,13 @@
+UthmanicHafs1Ver18.woff2
+
+Source: Quran Foundation
+https://verses.quran.foundation/fonts/quran/hafs/uthmanic_hafs/UthmanicHafs1Ver18.woff2
+
+Used unmodified solely to render Quran text inside the Scroll The Quran application.
+Quran Foundation Developer Terms:
+https://api-docs.quran.foundation/legal/developer-terms/
+
+The Developer Terms permit QF Content to be displayed as part of an application's
+end-user experience and state that serving QF Content from a developer-controlled
+backend within that experience is not, by itself, redistribution. No standalone
+font package, dataset, or content-download service is offered by this application.
