@@ -74,7 +74,9 @@ function normalizeVerse(raw) {
     .filter((word) => !["end", "pause", "sajdah"].includes(word.char_type_name))
     .map((word) => ({
       position: word.position,
-      text: word.text_uthmani ?? word.text ?? "",
+      // text_qpc_hafs is the encoding the KFGQPC UthmanicHafs font is built for. Using
+      // text_uthmani with this font draws placeholder circles on ~36% of ayahs.
+      text: word.text_qpc_hafs ?? word.text_uthmani ?? word.text ?? "",
       translation: word.translation?.text ?? "",
       transliteration: word.transliteration?.text ?? null,
     }));
@@ -83,7 +85,8 @@ function normalizeVerse(raw) {
     id: raw.id,
     verseKey: raw.verse_key,
     verseNumber: raw.verse_number,
-    arabic: raw.text_uthmani ?? words.map((word) => word.text).join(" "),
+    // Joined from the sourced words so the end-of-ayah number (shown separately in the UI) is excluded.
+    arabic: words.map((word) => word.text).join(" ") || raw.text_qpc_hafs,
     translation: plainText(raw.translations?.[0]?.text ?? ""),
     transliteration: words.map((word) => word.transliteration).filter(Boolean).join(" "),
     audioUrl: file ? `/audio/${RECITER_ID}/${file}` : null,
@@ -144,9 +147,9 @@ await mapConcurrent(chapters, 4, async (chapter) => {
   const params = new URLSearchParams({
     language: "en",
     words: "true",
-    word_fields: "text_uthmani,transliteration,translation",
+    word_fields: "text_qpc_hafs,transliteration,translation",
     translations: TRANSLATION_ID,
-    fields: "text_uthmani",
+    fields: "text_qpc_hafs",
     audio: RECITER_ID,
     per_page: "300",
   });
