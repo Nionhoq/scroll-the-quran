@@ -1,0 +1,26 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "scroll-quran",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-09-30",
+  "workers_dev": true,
+  // Static files are free and served at the edge; the Worker runs only for pages and dynamic routes.
+  "assets": {
+    "directory": "./dist/public",
+    "binding": "ASSETS",
+    "not_found_handling": "none",
+    "run_worker_first": ["/*", "!/assets/*", "!/data/*", "!/fonts/*", "!/icons/*", "!/sw.js", "!/manifest.webmanifest"]
+  },
+  "rules": [{ "type": "Data", "globs": ["**/*.ttf"], "fallthrough": true }],
+  // Preview images need more than the free plan's 10 ms of CPU (Workers Paid).
+  "limits": { "cpu_ms": 30000 },
+  "d1_databases": [
+    { "binding": "COUNTS", "database_name": "scroll-quran-counts", "database_id": "REPLACE_WITH_D1_ID", "migrations_dir": "worker/migrations" }
+  ],
+  "r2_buckets": [{ "binding": "OG_CACHE", "bucket_name": "scroll-quran-og" }],
+  "vars": {
+    "PUBLIC_ORIGIN": "",
+    "SUPPORT_URL": ""
+  },
+  "observability": { "enabled": true }
+}

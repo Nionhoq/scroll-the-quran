@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.worker.tsbuildinfo",
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["@cloudflare/workers-types"],
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "verbatimModuleSyntax": true,
+    "baseUrl": ".",
+    "paths": { "@contracts/*": ["./contracts/*"] }
+  },
+  "include": ["worker", "api/lib/ogCore.ts", "api/lib/ogMeta.ts", "api/lib/tafsirText.ts", "contracts/ping.ts", "contracts/quran.ts"]
+}

@@ -28,9 +28,32 @@ npm run build
 npm start            # NODE_ENV=production node dist/boot.js
 ```
 
+Cloudflare (recommended): see **Deploy to Cloudflare** below.
+
 Docker: `docker build -t scroll-quran . && docker run -p 3000:3000 -v scroll-data:/app/data scroll-quran`
 
 Configuration is optional — see `.env.example` (`PUBLIC_ORIGIN`, `SUPPORT_URL`, `COUNTS_FILE`/`DATABASE_URL`).
+
+## Deploy to Cloudflare
+
+Workers + Static Assets. Static files (app, Quran data, fonts) are served free at the edge; the Worker
+(`worker/index.ts`) runs pages with preview tags, the audio proxy, tafsir, the daily count (D1), preview
+images (cached in R2) and the sitemap. Preview images need Workers Paid ($5/month) for CPU time.
+
+One-time setup:
+
+```bash
+npx wrangler login
+npx wrangler d1 create scroll-quran-counts        # put the id into wrangler.jsonc
+npx wrangler r2 bucket create scroll-quran-og     # enable R2 in the dashboard first
+npm run cf:migrate
+```
+
+Set `PUBLIC_ORIGIN` and `SUPPORT_URL` in `wrangler.jsonc` (`vars`), add the custom domain under
+`routes` (`{ "pattern": "quran.example.com", "custom_domain": true }`), then `npm run cf:deploy`.
+
+Local check in Cloudflare's runtime: `npm run build && npm run cf:dev`, then `npm run test:e2e` (all suites
+run against it unchanged).
 
 ## Tests
 

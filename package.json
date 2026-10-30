@@ -11,13 +11,16 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "NODE_ENV=production node dist/boot.js",
-    "check": "tsc -b",
+    "check": "tsc -b && tsc -p tsconfig.worker.json",
     "format": "prettier --write .",
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "cf:dev": "wrangler dev --local --port 3000",
+    "cf:migrate": "wrangler d1 migrations apply scroll-quran-counts --remote",
+    "cf:deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
     "@hono/node-server": "^1.14.3",
@@ -50,6 +53,7 @@
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@resvg/resvg-js": "^2.6.2",
+    "@resvg/resvg-wasm": "^2.6.2",
     "@tanstack/react-query": "^5.90.16",
     "@trpc/client": "^11.8.1",
     "@trpc/react-query": "^11.8.1",
@@ -82,6 +86,7 @@
     "zod": "^4.3.5"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260923.1",
     "@eslint/js": "^9.39.1",
     "@hono/vite-dev-server": "^0.19.0",
     "@playwright/test": "^1.56.1",
@@ -106,6 +111,7 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4",
-    "vitest": "^4.0.16"
+    "vitest": "^4.0.16",
+    "wrangler": "^4.140.0"
   }
 }
