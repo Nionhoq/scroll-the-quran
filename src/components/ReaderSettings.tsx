@@ -166,7 +166,7 @@ export function ReaderSettings({
               >
                 Data and attribution <ExternalLink className="h-3.5 w-3.5" />
               </a>
-              <SupportLink className="flex min-h-11 items-center" />
+              <SupportLink className="min-h-11 !items-start" />
             </div>
           </div>
         </div>
