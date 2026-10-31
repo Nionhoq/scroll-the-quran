@@ -15,12 +15,15 @@
   // Preview images need more than the free plan's 10 ms of CPU (Workers Paid).
   "limits": { "cpu_ms": 30000 },
   "d1_databases": [
-    { "binding": "COUNTS", "database_name": "scroll-quran-counts", "database_id": "REPLACE_WITH_D1_ID", "migrations_dir": "worker/migrations" }
+    { "binding": "COUNTS", "database_name": "scroll-quran-counts", "database_id": "d8412622-b4d2-4ce6-b710-fe9f55524d37", "migrations_dir": "worker/migrations" }
   ],
-  "r2_buckets": [{ "binding": "OG_CACHE", "bucket_name": "scroll-quran-og" }],
+  // R2 is not enabled on the Cloudflare account yet; OG_CACHE binding omitted for now.
+  // Preview images still work, just regenerated each time instead of cached.
+  // Add back once R2 is enabled: "r2_buckets": [{ "binding": "OG_CACHE", "bucket_name": "scroll-quran-og" }],
   "vars": {
-    "PUBLIC_ORIGIN": "",
+    "PUBLIC_ORIGIN": "https://quran.nion-hoq.ca",
     "SUPPORT_URL": ""
   },
+  "routes": [{ "pattern": "quran.nion-hoq.ca", "custom_domain": true }],
   "observability": { "enabled": true }
 }
