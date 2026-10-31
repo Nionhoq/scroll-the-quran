@@ -45,3 +45,6 @@ playwright-report/
 # Anonymous daily counts (local file store)
 /data/
 dist-preview
+
+# Wrangler local state
+.wrangler/
