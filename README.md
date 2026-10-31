@@ -1,5 +1,9 @@
 # Scroll The Quran
 
+*In memory of my father, Fazlul Hoque, whose example first taught me to read the Quran with
+care. He showed me a way of life, and gave me a life to be grateful for. May this reach others
+the way he reached me — and may its reward continue to reach him.*
+
 A calm, private Quran reader: one ayah at a time, with recitation, translation and tafsir.
 No accounts, no ads, no tracking. Built as a mobile-first web app that installs to the home screen.
 
