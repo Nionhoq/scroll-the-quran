@@ -12,6 +12,7 @@ test("share uses the native sheet with only the verse key in the link", async ({
   await page.getByRole("button", { name: "Next ayah" }).click();
   await expect(page.locator("header")).toContainText("2 / 7");
   await page.getByRole("button", { name: "Share Al-Fatihah 1:2" }).click();
+  await page.getByRole("button", { name: "Send link" }).click();
   const shared = await page.evaluate(() => (window as unknown as { __shared: ShareData[] }).__shared);
   expect(shared).toHaveLength(1);
   expect(shared[0].url).toBe("http://127.0.0.1:3000/1/2");
@@ -27,6 +28,8 @@ test("without a share sheet, the link is copied with a 'Link copied' notice", as
   await page.goto("/13/28");
   await expect(page.locator('[data-verse-key="13:28"] .quran-arabic')).toBeVisible();
   await page.getByRole("button", { name: "Share Ar-Ra'd 13:28" }).click();
+  await expect(page.getByRole("button", { name: "Send link" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Copy link" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Link copied" })).toBeVisible();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("http://127.0.0.1:3000/13/28");
 });

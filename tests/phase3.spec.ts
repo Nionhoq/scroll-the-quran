@@ -43,7 +43,7 @@ test("a previously opened surah and played recitation work offline", async ({ pa
   page.on("pageerror", (error) => errors.push(error.message));
   await openReader(page);
   await page.getByRole("button", { name: "Choose another surah" }).click();
-  await page.getByPlaceholder("Search by name or number").fill("Al-Baqarah");
+  await page.getByPlaceholder("Name, number, or 2:255").fill("Al-Baqarah");
   await page.getByRole("listitem").filter({ hasText: "Al-Baqarah" }).click();
   await expect(page.locator('article[data-verse-key="2:1"] .quran-arabic')).toBeVisible();
   await page.getByRole("button", { name: "Play recitation" }).click();

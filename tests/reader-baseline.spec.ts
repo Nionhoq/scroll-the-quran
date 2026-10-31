@@ -110,7 +110,7 @@ test("opens sourced tafsir and word meanings for the current ayah, then closes",
 test("surah picker searches and switches to Surah 2", async ({ page }) => {
   await openReader(page);
   await page.getByRole("button", { name: "Choose another surah" }).click();
-  await page.getByPlaceholder("Search by name or number").fill("Al-Baqarah");
+  await page.getByPlaceholder("Name, number, or 2:255").fill("Al-Baqarah");
   await page.getByRole("listitem").filter({ hasText: "Al-Baqarah" }).click();
   await expect(page.locator('[data-verse-key="2:1"] .quran-arabic')).toBeVisible({ timeout: 45_000 });
   await expectPosition(page, 2, 1, 286);

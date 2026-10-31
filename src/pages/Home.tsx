@@ -18,10 +18,10 @@ import type { FontScale } from "@/components/ReaderSettings";
 const UnderstandDrawer = lazy(() => import("@/components/UnderstandDrawer").then((module) => ({ default: module.UnderstandDrawer })));
 const SurahDialog = lazy(() => import("@/components/SurahDialog").then((module) => ({ default: module.SurahDialog })));
 const ReaderSettings = lazy(() => import("@/components/ReaderSettings").then((module) => ({ default: module.ReaderSettings })));
-import { useReadingProgress } from "@/hooks/useReadingProgress";
+import { resumeAyah, useReadingProgress } from "@/hooks/useReadingProgress";
 
 export default function Home() {
-  const { lastRead, recordRead } = useReadingProgress();
+  const { lastRead, positions, recordRead } = useReadingProgress();
   const params = useParams<{ surah?: string; ayah?: string }>();
   const isDeepLink = params.surah !== undefined;
   const routeChapter = params.surah && /^\d{1,3}$/.test(params.surah) ? Number(params.surah) : NaN;
@@ -68,6 +68,8 @@ export default function Home() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const restoredChapter = useRef<number | null>(null);
+  // Where the next chapter load should land: a chosen ayah, or "resume" for its saved spot.
+  const pendingTarget = useRef<number | "resume" | null>(null);
   const advancing = useRef(false);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentIndexRef = useRef(currentIndex);
@@ -106,9 +108,17 @@ export default function Home() {
       lastRead?.chapterId === chapterId
         ? feed.verses.findIndex((ayah) => ayah.verseKey === lastRead.verseKey)
         : -1;
+    const pending = pendingTarget.current;
+    pendingTarget.current = null;
+    const pendingIndex =
+      pending === "resume"
+        ? resumeAyah(positions, chapterId, feed.verses.length) - 1
+        : typeof pending === "number"
+          ? Math.min(pending, feed.verses.length) - 1
+          : -1;
     const deepLinkIndex = isDeepLink && validRoute && routeChapter === chapterId && params.ayah ? routeAyah - 1 : -1;
-    if (deepLinkIndex >= feed.verses.length) return;
-    const nextIndex = deepLinkIndex >= 0 ? deepLinkIndex : savedIndex >= 0 ? savedIndex : 0;
+    if (pendingIndex < 0 && deepLinkIndex >= feed.verses.length) return;
+    const nextIndex = pendingIndex >= 0 ? pendingIndex : deepLinkIndex >= 0 ? deepLinkIndex : savedIndex >= 0 ? savedIndex : 0;
     restoredChapter.current = chapterId;
     advancing.current = false;
     requestAnimationFrame(() => {
@@ -119,7 +129,7 @@ export default function Home() {
         container.scrollTo({ top: nextIndex * container.clientHeight, behavior: "auto" });
       }
     });
-  }, [feed, chapterId, lastRead, isDeepLink, validRoute, routeChapter, routeAyah, params.ayah]);
+  }, [feed, chapterId, lastRead, positions, isDeepLink, validRoute, routeChapter, routeAyah, params.ayah]);
 
   useEffect(() => {
     if (currentAyah) recordRead(chapterId, currentAyah.verseKey);
@@ -208,6 +218,21 @@ export default function Home() {
       });
     },
     [feed],
+  );
+
+  /** Surah navigator: a chosen ayah, or the surah's saved spot. */
+  const openFromNavigator = useCallback(
+    (nextChapter: number, ayah?: number) => {
+      if (nextChapter === chapterId) {
+        setSurahOpen(false);
+        setSelectedAyah(null);
+        if (ayah) goToIndex(ayah - 1, "auto");
+        return;
+      }
+      pendingTarget.current = ayah ?? "resume";
+      changeChapter(nextChapter);
+    },
+    [chapterId, changeChapter, goToIndex],
   );
 
   const goNext = useCallback(() => {
@@ -497,7 +522,8 @@ export default function Home() {
             onOpenChange={setSurahOpen}
             chapters={chaptersQuery.data ?? [feed.chapter]}
             currentChapterId={chapterId}
-            onSelect={changeChapter}
+            positions={positions}
+            onSelect={openFromNavigator}
           />
         )}
         {settingsOpen && (

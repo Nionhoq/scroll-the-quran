@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Search, X } from "lucide-react";
+import { CornerDownRight, Search, X } from "lucide-react";
 import type { Chapter } from "@contracts/quran";
 import {
   Dialog,
@@ -9,13 +9,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { parseAyahQuery, searchChapters, type AyahTarget } from "@/lib/surahSearch";
+import { resumeAyah, type Positions } from "@/hooks/useReadingProgress";
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   chapters: Chapter[];
   currentChapterId: number;
-  onSelect: (chapterId: number) => void;
+  positions: Positions;
+  /** Without an ayah, the surah reopens where it was left. */
+  onSelect: (chapterId: number, ayah?: number) => void;
 };
 
 export function SurahDialog({
@@ -23,18 +27,27 @@ export function SurahDialog({
   onOpenChange,
   chapters,
   currentChapterId,
+  positions,
   onSelect,
 }: Props) {
   const [query, setQuery] = useState("");
-  const filtered = useMemo(() => {
-    const term = query.trim().toLowerCase();
-    if (!term) return chapters;
-    return chapters.filter((chapter) =>
-      `${chapter.id} ${chapter.nameSimple} ${chapter.translatedName} ${chapter.nameArabic}`
-        .toLowerCase()
-        .includes(term),
-    );
-  }, [chapters, query]);
+  const filtered = useMemo(() => searchChapters(chapters, query), [chapters, query]);
+  const jumps = useMemo(() => {
+    const out: Array<AyahTarget & { label: string }> = [];
+    const target = parseAyahQuery(chapters, query);
+    if (target) out.push({ ...target, label: `Go to ${target.chapter.nameSimple} ${target.chapter.id}:${target.ayah}` });
+    const current = chapters.find((chapter) => chapter.id === currentChapterId);
+    const n = /^\d{1,3}$/.test(query.trim()) ? Number(query.trim()) : 0;
+    if (current && n >= 1 && n <= current.versesCount) {
+      out.push({ chapter: current, ayah: n, label: `Ayah ${n} of ${current.nameSimple}` });
+    }
+    return out;
+  }, [chapters, currentChapterId, query]);
+
+  const submit = () => {
+    if (jumps[0]) onSelect(jumps[0].chapter.id, jumps[0].ayah);
+    else if (filtered[0]) onSelect(filtered[0].id);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -60,14 +73,39 @@ export function SurahDialog({
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search by name or number"
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  submit();
+                }
+              }}
+              placeholder="Name, number, or 2:255"
+              enterKeyHint="go"
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
               className="h-12 min-w-0 flex-1 bg-transparent text-base text-[var(--cream)] outline-none placeholder:text-[var(--muted)]"
             />
           </label>
         </DialogHeader>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3 sm:px-5" role="list">
-          {filtered.map((chapter) => (
+          {jumps.map((jump) => (
+            <button
+              key={`${jump.chapter.id}:${jump.ayah}`}
+              type="button"
+              onClick={() => onSelect(jump.chapter.id, jump.ayah)}
+              className="flex min-h-[60px] w-full cursor-pointer items-center gap-4 rounded-xl border border-[var(--line)] px-3 py-3 text-left outline-none transition-colors duration-150 hover:bg-[var(--hover)] focus-visible:ring-2 focus-visible:ring-[var(--gold)] [&+&]:mt-2 [&:last-of-type]:mb-3"
+              role="listitem"
+              data-testid="jump-to-ayah"
+            >
+              <CornerDownRight className="h-4 w-7 shrink-0 text-[var(--gold)]" aria-hidden="true" />
+              <span className="min-w-0 flex-1 truncate text-sm font-medium text-[var(--cream)]">{jump.label}</span>
+            </button>
+          ))}
+          {filtered.map((chapter) => {
+            const resume = resumeAyah(positions, chapter.id, chapter.versesCount);
+            return (
             <button
               key={chapter.id}
               type="button"
@@ -89,17 +127,19 @@ export function SurahDialog({
                 </span>
                 <span className="mt-1 block truncate text-xs text-[var(--muted)]">
                   {chapter.translatedName} · {chapter.versesCount} ayahs
+                  {resume > 1 && <span className="text-[var(--gold)]"> · Resume at {resume}</span>}
                 </span>
               </span>
               <span lang="ar" dir="rtl" className="font-arabic-ui text-xl text-[var(--cream-soft)]">
                 {chapter.nameArabic}
               </span>
             </button>
-          ))}
-          {filtered.length === 0 && (
+            );
+          })}
+          {filtered.length === 0 && jumps.length === 0 && (
             <div className="flex h-48 flex-col items-center justify-center px-8 text-center">
               <p className="text-base text-[var(--cream)]">No surah found</p>
-              <p className="mt-2 text-sm text-[var(--muted)]">Try a different name or a number from 1 to 114.</p>
+              <p className="mt-2 text-sm text-[var(--muted)]">Try another spelling, a number from 1 to 114, or an ayah like 2:255.</p>
             </div>
           )}
         </div>
