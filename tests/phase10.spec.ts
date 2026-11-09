@@ -79,3 +79,20 @@ test("a full saved list says so instead of dropping the first saved ayah", async
   await page.getByRole("button", { name: "Choose another surah" }).click();
   await expect(page.getByTestId("saved-ayahs").getByRole("button", { name: /^Go to saved/ }).first()).toHaveText("Al-Baqarah 2:1");
 });
+
+test("the saved list never leaves the phone", async ({ page }) => {
+  const sent: string[] = [];
+  page.on("request", (request) => sent.push(`${request.method()} ${request.url()} ${request.postData() ?? ""}`));
+  await page.goto("/2/255");
+  await expect(page.locator('[data-verse-key="2:255"] .quran-arabic')).toBeVisible();
+  await page.getByRole("button", { name: "Save Al-Baqarah 2:255" }).click();
+  await page.getByRole("button", { name: "Choose another surah" }).click();
+  await page.getByTestId("saved-ayahs").getByRole("button", { name: "Go to saved Al-Baqarah 2:255" }).click();
+  await page.reload();
+  await expect(page.locator('[data-verse-key="2:255"] .quran-arabic')).toBeVisible();
+  // No request names the saved list or carries it; the only POST is the anonymous daily count.
+  expect(sent.filter((line) => /saved|bookmark|2:255|2%3A255/i.test(line))).toEqual([]);
+  for (const line of sent.filter((l) => l.startsWith("POST"))) expect(line).toMatch(/\/api\/ping \{"bucket":"[^"]+"\}$/);
+  await page.goto("/privacy");
+  await expect(page.getByText("Your saved ayahs, where you left off in each surah")).toBeVisible();
+});

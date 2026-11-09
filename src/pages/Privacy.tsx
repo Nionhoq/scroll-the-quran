@@ -28,7 +28,7 @@ export default function Privacy() {
             <section className="py-5">
               <h2 className="text-base font-medium">On your phone</h2>
               <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-                Your last-read ayah, reading days, and settings stay in this browser. They are not sent to us or added to links. Clearing browser data removes them.
+                Your saved ayahs, where you left off in each surah, your reading days, and your settings stay in this browser. They are not sent to us or added to links, and we cannot see them. Clearing browser data removes them, and they do not move to a new phone.
               </p>
             </section>
             <section className="py-5">
