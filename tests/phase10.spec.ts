@@ -65,3 +65,17 @@ test("an ayah saved from a feeling shows up in the surah list", async ({ page })
   await page.getByRole("button", { name: "Choose another surah" }).click();
   await expect(page.getByTestId("saved-ayahs").getByRole("button", { name: "Go to saved Ar-Ra'd 13:28" })).toBeVisible();
 });
+
+test("a full saved list says so instead of dropping the first saved ayah", async ({ page }) => {
+  await page.addInitScript(() => {
+    if (localStorage.getItem("scroll-quran:saved")) return;
+    localStorage.setItem("scroll-quran:saved", JSON.stringify(Array.from({ length: 100 }, (_, i) => `2:${i + 1}`)));
+  });
+  await page.goto("/2/255");
+  await expect(page.locator('[data-verse-key="2:255"] .quran-arabic')).toBeVisible();
+  await page.getByRole("button", { name: "Save Al-Baqarah 2:255" }).click();
+  await expect(page.getByRole("status")).toContainText("Your saved list is full (100)");
+  await expect(page.getByTestId("save-ayah")).toHaveAttribute("aria-pressed", "false");
+  await page.getByRole("button", { name: "Choose another surah" }).click();
+  await expect(page.getByTestId("saved-ayahs").getByRole("button", { name: /^Go to saved/ }).first()).toHaveText("Al-Baqarah 2:1");
+});

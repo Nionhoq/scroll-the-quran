@@ -28,9 +28,9 @@ describe("saved ayahs", () => {
   });
 
   it("toggling again removes it", () => {
-    expect(toggleSaved("40:38")).toBe(true);
+    expect(toggleSaved("40:38")).toBe("saved");
     expect(isSaved("40:38")).toBe(true);
-    expect(toggleSaved("40:38")).toBe(false);
+    expect(toggleSaved("40:38")).toBe("removed");
     expect(getSaved()).toEqual([]);
   });
 
@@ -41,8 +41,8 @@ describe("saved ayahs", () => {
   });
 
   it("ignores ayahs that do not exist and junk in storage", () => {
-    expect(toggleSaved("2:287")).toBe(false);
-    expect(toggleSaved("115:1")).toBe(false);
+    expect(toggleSaved("2:287")).toBe("invalid");
+    expect(toggleSaved("115:1")).toBe("invalid");
     localStorage.setItem("scroll-quran:saved", JSON.stringify(["1:1", "1:1", "x", 5, "1:8", "36:1"]));
     resetSavedCache();
     expect(getSaved()).toEqual(["1:1", "36:1"]);
@@ -58,9 +58,14 @@ describe("saved ayahs", () => {
     expect(getSaved()).toEqual(["2:285"]);
   });
 
-  it("caps the list", () => {
-    for (let a = 1; a <= SAVED_MAX + 5; a += 1) toggleSaved(`2:${a}`);
+  it("a full list refuses new ones and never drops the oldest", () => {
+    for (let a = 1; a <= SAVED_MAX; a += 1) expect(toggleSaved(`2:${a}`)).toBe("saved");
+    expect(toggleSaved("2:255")).toBe("full");
     expect(getSaved()).toHaveLength(SAVED_MAX);
-    expect(getSaved().at(-1)).toBe(`2:${SAVED_MAX + 5}`);
+    expect(getSaved()[0]).toBe("2:1");
+    expect(getSaved()).not.toContain("2:255");
+    // Removing one makes room again.
+    expect(toggleSaved("2:1")).toBe("removed");
+    expect(toggleSaved("2:255")).toBe("saved");
   });
 });

@@ -52,16 +52,22 @@ export function isSaved(key: string): boolean {
   return getSaved().includes(key);
 }
 
-/** Saves or un-saves an ayah. Returns true if it is now saved. */
-export function toggleSaved(key: string): boolean {
-  if (!valid(key)) return false;
+export type ToggleResult = "saved" | "removed" | "full" | "invalid";
+
+/**
+ * Saves or un-saves an ayah. A full list is never trimmed behind the reader's back:
+ * saving one more returns "full" and changes nothing.
+ */
+export function toggleSaved(key: string): ToggleResult {
+  if (!valid(key)) return "invalid";
   const current = getSaved();
   if (current.includes(key)) {
     write(current.filter((item) => item !== key));
-    return false;
+    return "removed";
   }
-  write([...current, key].slice(-SAVED_MAX));
-  return true;
+  if (current.length >= SAVED_MAX) return "full";
+  write([...current, key]);
+  return "saved";
 }
 
 export function removeSaved(key: string) {

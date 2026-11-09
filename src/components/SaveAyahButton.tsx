@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { Bookmark } from "lucide-react";
-import { toggleSaved, useSavedAyahs } from "@/lib/savedAyahs";
+import { SAVED_MAX, toggleSaved, useSavedAyahs, type ToggleResult } from "@/lib/savedAyahs";
+
+const NOTICES: Record<ToggleResult, string> = {
+  saved: "Saved · find it in the surah list",
+  removed: "Removed from saved",
+  full: `Your saved list is full (${SAVED_MAX}). Remove one in the surah list to add another.`,
+  invalid: "This ayah can’t be saved",
+};
 
 /** Save / un-save the ayah on screen. Saved ayahs appear at the top of the surah list. */
 export function SaveAyahButton({ verseKey, chapterName }: { verseKey: string; chapterName: string }) {
@@ -17,7 +24,7 @@ export function SaveAyahButton({ verseKey, chapterName }: { verseKey: string; ch
     <>
       <button
         type="button"
-        onClick={() => setNotice(toggleSaved(verseKey) ? "Saved · find it in the surah list" : "Removed from saved")}
+        onClick={() => setNotice(NOTICES[toggleSaved(verseKey)])}
         className="icon-button shrink-0"
         aria-pressed={saved}
         aria-label={saved ? `Remove ${chapterName} ${verseKey} from saved` : `Save ${chapterName} ${verseKey}`}
@@ -32,7 +39,7 @@ export function SaveAyahButton({ verseKey, chapterName }: { verseKey: string; ch
       {notice && (
         <p
           role="status"
-          className="pointer-events-none fixed inset-x-0 top-[max(72px,calc(env(safe-area-inset-top)+56px))] z-50 mx-auto w-fit rounded-full border border-[var(--line)] bg-[var(--panel)] px-4 py-2 text-sm text-[var(--cream)] shadow-xl"
+          className="pointer-events-none fixed inset-x-4 top-[max(72px,calc(env(safe-area-inset-top)+56px))] z-50 mx-auto w-fit max-w-sm rounded-2xl border text-center border-[var(--line)] bg-[var(--panel)] px-4 py-2 text-sm text-[var(--cream)] shadow-xl"
         >
           {notice}
         </p>
