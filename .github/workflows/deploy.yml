@@ -55,6 +55,12 @@ jobs:
       - if: steps.gate.outputs.go == 'true'
         run: npm ci
       - if: steps.gate.outputs.go == 'true'
+        name: Show which Cloudflare account this token sees
+        run: npx wrangler whoami
+      - if: steps.gate.outputs.go == 'true'
+        name: Apply database migrations (if any are new)
+        # Already applied in production; a permission gap here should not block the app deploy.
+        continue-on-error: true
         run: npx wrangler d1 migrations apply scroll-quran-counts --remote
       - if: steps.gate.outputs.go == 'true'
         run: npm run cf:deploy
