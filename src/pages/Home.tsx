@@ -9,6 +9,7 @@ import { getStaticChapter, getStaticChapters } from "@/lib/staticQuran";
 import { AyahView } from "@/components/AyahView";
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { AudioDock } from "@/components/AudioDock";
+import { SaveAyahButton } from "@/components/SaveAyahButton";
 import { InstallCard } from "@/components/InstallCard";
 import { DoneCard } from "@/components/DoneCard";
 import { anchorLabel, gentleStreakLabel } from "@/lib/dailyAyah";
@@ -458,6 +459,7 @@ export default function Home() {
         <InstallCard />
       )}
       <AudioDock
+        accessory={<SaveAyahButton verseKey={currentAyah.verseKey} chapterName={feed.chapter.nameSimple} />}
         ayah={currentAyah}
         reciterName={feed.reciterName}
         isPlaying={isPlaying}

@@ -7,6 +7,7 @@ import { getStaticChapter } from "@/lib/staticQuran";
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { AyahView } from "@/components/AyahView";
 import { AudioDock } from "@/components/AudioDock";
+import { SaveAyahButton } from "@/components/SaveAyahButton";
 import { ShareButton } from "@/components/ShareButton";
 
 const UnderstandDrawer = lazy(() => import("@/components/UnderstandDrawer").then((m) => ({ default: m.UnderstandDrawer })));
@@ -179,6 +180,7 @@ export function AyahSetReader({ verses, tint, backLabel, backAria, onBack, ariaL
       </div>
 
       <AudioDock
+        accessory={<SaveAyahButton verseKey={current.ayah.verseKey} chapterName={current.chapter.nameSimple} />}
         ayah={current.ayah}
         reciterName="Mishary Rashid Alafasy"
         isPlaying={isPlaying}

@@ -1,4 +1,5 @@
 import { Pause, Play, SkipBack, SkipForward } from "lucide-react";
+import type { ReactNode } from "react";
 import type { Ayah } from "@contracts/quran";
 
 function formatTime(seconds: number): string {
@@ -18,6 +19,8 @@ type Props = {
   onToggle: () => void;
   onPrevious: () => void;
   onNext: () => void;
+  /** Extra control at the end of the dock (the save button). */
+  accessory?: ReactNode;
 };
 
 export function AudioDock({
@@ -31,6 +34,7 @@ export function AudioDock({
   onToggle,
   onPrevious,
   onNext,
+  accessory,
 }: Props) {
   const progress = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
 
@@ -83,6 +87,7 @@ export function AudioDock({
               {ayah.verseKey} · {formatTime(currentTime)} / {formatTime(duration)}
             </p>
           </div>
+          {accessory}
         </div>
       </div>
     </div>

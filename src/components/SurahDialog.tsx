@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { CornerDownRight, Search, X } from "lucide-react";
+import { Bookmark, CornerDownRight, Search, X } from "lucide-react";
 import type { Chapter } from "@contracts/quran";
 import {
   Dialog,
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { parseAyahQuery, searchChapters, type AyahTarget } from "@/lib/surahSearch";
 import { resumeAyah, type Positions } from "@/hooks/useReadingProgress";
+import { removeSaved, useSavedAyahs } from "@/lib/savedAyahs";
 
 type Props = {
   open: boolean;
@@ -31,6 +32,8 @@ export function SurahDialog({
   onSelect,
 }: Props) {
   const [query, setQuery] = useState("");
+  const saved = useSavedAyahs();
+  const nameOf = useMemo(() => new Map(chapters.map((chapter) => [chapter.id, chapter.nameSimple])), [chapters]);
   const filtered = useMemo(() => searchChapters(chapters, query), [chapters, query]);
   const jumps = useMemo(() => {
     const out: Array<AyahTarget & { label: string }> = [];
@@ -87,6 +90,45 @@ export function SurahDialog({
               className="h-12 min-w-0 flex-1 bg-transparent text-base text-[var(--cream)] outline-none placeholder:text-[var(--muted)]"
             />
           </label>
+          {!query.trim() && (
+            <section className="mt-4" aria-labelledby="saved-heading" data-testid="saved-ayahs">
+              <h3 id="saved-heading" className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.18em] text-[var(--muted)]">
+                <Bookmark className="h-3 w-3" aria-hidden="true" /> Saved
+              </h3>
+              {saved.length === 0 ? (
+                <p className="mt-2 text-xs leading-5 text-[var(--muted)]">
+                  Tap the bookmark next to the player to save an ayah. It will wait for you here.
+                </p>
+              ) : (
+                <ul className="-mx-1 mt-2 flex max-h-[104px] flex-wrap gap-2 overflow-y-auto px-1 pb-1" role="list">
+                  {saved.map((key) => {
+                    const [surah, ayah] = key.split(":").map(Number);
+                    const name = nameOf.get(surah) ?? `Surah ${surah}`;
+                    return (
+                      <li key={key} className="flex shrink-0 items-center rounded-full border border-[var(--line)] bg-[var(--canvas)]">
+                        <button
+                          type="button"
+                          onClick={() => onSelect(surah, ayah)}
+                          className="min-h-10 cursor-pointer rounded-l-full py-2 pl-4 pr-2 text-left text-sm text-[var(--cream)] outline-none hover:bg-[var(--hover)] focus-visible:ring-2 focus-visible:ring-[var(--gold)]"
+                          aria-label={`Go to saved ${name} ${key}`}
+                        >
+                          {name} <span className="tabular-nums text-[var(--gold)]">{key}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeSaved(key)}
+                          className="flex h-10 w-9 cursor-pointer items-center justify-center rounded-r-full text-[var(--muted)] outline-none hover:text-[var(--cream)] focus-visible:ring-2 focus-visible:ring-[var(--gold)]"
+                          aria-label={`Remove ${name} ${key} from saved`}
+                        >
+                          <X className="h-3.5 w-3.5" aria-hidden="true" />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </section>
+          )}
         </DialogHeader>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3 sm:px-5" role="list">
